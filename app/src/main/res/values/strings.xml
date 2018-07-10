@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ToDoList</string>
+    <string name="task_title">Task title</string>
+    <string name="due_date">Due date</string>
+    <string name="repeat">Repeat</string>
+    <string name="title_new_task">New task</string>
+    <string name="done">Done</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+
+</resources>

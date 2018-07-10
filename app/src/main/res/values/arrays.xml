@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_remind_frequency">
+        <item>Never</item>
+        <item>Once a day</item>
+        <item>Once a week</item>
+        <item>Once a month</item>
+    </string-array>
+</resources>
