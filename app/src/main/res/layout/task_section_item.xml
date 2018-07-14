@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="false"
     android:focusable="false">
@@ -12,6 +13,6 @@
         android:text="05-07-2018"
         android:id="@+id/text_view_section"
         android:layout_margin="8dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
 </LinearLayout>

@@ -52,9 +52,9 @@ public class TaskHeader implements Taskable{
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
         try{
-            if((format.parse(date + " " + time).getDay()) - calendar.getTime().getDay() == 1){
+            if((format.parse(date).getDay()) - calendar.getTime().getDay() == 0){
                 return today;
-            }   if(format.parse(date + " " + time).getDay() - calendar.getTime().getDay() == 2){
+            }   if(format.parse(date).getDay() - calendar.getTime().getDay() == 1){
                 return tomorrow;
             }
         }catch (ParseException pe){

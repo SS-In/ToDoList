@@ -3,27 +3,35 @@ package com.ssin.todolist.ui.newtask.view;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.SimpleAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TimePicker;
 
 import com.ssin.todolist.R;
+import com.ssin.todolist.util.DateTimeUtil;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindArray;
 import butterknife.BindString;
@@ -32,10 +40,17 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class NewTaskActiivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
-    @BindString(R.string.title_new_task) String title;
+    @BindString(R.string.error_title)
+    String errorTitle;
 
-    @BindArray(R.array.spinner_remind_frequency)
+    @BindString(R.string.title_new_task)
+    String title;
+
+    @BindArray(R.array.repeat_frequency)
     String[] repeatArray;
+
+    @BindArray(R.array.remind_frequency)
+    String[] remindArray;
 
     @BindView(R.id.edit_text_task_title)
     EditText etTitle;
@@ -55,34 +70,113 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
     @BindView(R.id.spinner_repeat)
     Spinner spinnerRepeat;
 
-    private long timeMilis;
+    @BindView(R.id.linear_layout_tags_chkbxs)
+    LinearLayout layoutCheckBoxes;
+
+    @BindView(R.id.spinner_remind)
+    Spinner spinnerRemind;
+
+    @BindView(R.id.check_box_done)
+    CheckBox chbxDone;
+
+    private HashMap<String, CheckBox> checkBoxList;
 
     public static final String EXTRA_DATE = "date";
     public static final String EXTRA_TIME = "time";
     public static final String EXTRA_TITLE = "title";
-    public static final String EXTRA_REMIND_FREQUENCY = "freq";
+    public static final String EXTRA_REMIND_FREQUENCY = "remind_freq";
+    public static final String EXTRA_REPEAT_FREQUENCY = "repeat_freq";
+    public static final String EXTRA_DONE = "done";
+    public static final String EXTRA_TAGS = "tags";
+    public static final String EXTRA_MODE = "mode";
+    public static final String EXTRA_ITEM_POS = "itempos";
+
+    public static final String EXTRA_MODE_EDIT = "edit";
+    public static final String EXTRA_MODE_CREATE = "create";
+
+    private int itemPos = -1;
 
     public static final int FREQ_NEVER = 0;
     public static final int FREQ_DAY = 1;
     public static final int FREQ_WEEK = 2;
     public static final int FREQ_MONTH = 3;
 
+    public static final int FREQ_RING_ONCE = 0;
+    public static final int FREQ_RING_FIVE_TIMES = 1;
+    public static final int FREQ_RING_NONSTOP = 2;
+
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
+
+    private List<String> checkedTags;
+
+    private String currentMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task_actiivity);
 
+        checkedTags = new ArrayList<>();
         ButterKnife.bind(this);
 
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        SpinnerAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,repeatArray);
+        SpinnerAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, repeatArray);
         spinnerRepeat.setAdapter(adapter);
+
+        SpinnerAdapter adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, remindArray);
+        spinnerRemind.setAdapter(adapter1);
+
+        chbxDone.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b)
+                    etTitle.setPaintFlags(etTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                else
+                    etTitle.setPaintFlags(etTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            }
+        });
+        checkBoxList = new HashMap<>();
+
+        for (int i = 1; i <= 10; i++) {
+            final CheckBox cb = new CheckBox(this);
+            cb.setText("Tag " + i);
+            layoutCheckBoxes.addView(cb);
+            checkBoxList.put("Tag " + i, cb);
+
+            cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b)
+                        checkedTags.add(cb.getText().toString());
+                    else
+                        checkedTags.remove(cb.getText().toString());
+
+                }
+            });
+        }
+
+        currentMode = getIntent().getStringExtra(NewTaskActiivity.EXTRA_MODE);
+
+        etTime.setText(DateTimeUtil.getTimeNow());
+        etDate.setText(DateTimeUtil.getDateNow());
+        etTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showTimePickDialog();
+            }
+        });
+
+        etDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickDialog();
+            }
+        });
+        extractDataFromIntent();
     }
 
     @Override
@@ -93,36 +187,59 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.new_task_menu,menu);
+        getMenuInflater().inflate(R.menu.new_task_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_done){
+        if (item.getItemId() == R.id.action_done) {
+            if(TextUtils.isEmpty(etTitle.getText().toString())) {
+                etTitle.setError(errorTitle);
+                return true;
+            }
+
+            etTitle.setError(null);
+
             Intent data = new Intent();
-            data.putExtra(EXTRA_DATE,etDate.getText().toString());
-            data.putExtra(EXTRA_TIME,etTime.getText().toString());
-            data.putExtra(EXTRA_TITLE,etTitle.getText().toString());
-            data.putExtra(EXTRA_REMIND_FREQUENCY,spinnerRepeat.getSelectedItemPosition());
-            setResult(Activity.RESULT_OK,data);
+            data.putExtra(EXTRA_DATE, etDate.getText().toString());
+            data.putExtra(EXTRA_TIME, etTime.getText().toString());
+            data.putExtra(EXTRA_TITLE, etTitle.getText().toString());
+            data.putExtra(EXTRA_REMIND_FREQUENCY, spinnerRemind.getSelectedItemPosition());
+            data.putExtra(EXTRA_REPEAT_FREQUENCY, spinnerRepeat.getSelectedItemPosition());
+            data.putExtra(EXTRA_DONE, chbxDone.isChecked());
+            data.putExtra(EXTRA_ITEM_POS, itemPos);
+
+            data.putExtra(EXTRA_MODE, currentMode);
+
+            String[] arr = new String[checkedTags.size()];
+            for (int i = 0; i < checkedTags.size(); i++)
+                arr[i] = checkedTags.get(i);
+            data.putExtra(EXTRA_TAGS, arr);
+
+            for (String s : checkedTags)
+                Log.d("NewTaskAct", s);
+            setResult(Activity.RESULT_OK, data);
             finish();
         }
         return true;
     }
 
     @OnClick(R.id.image_button_pick_time)
-    public void showTimePickDialog(){
-        if(timePickerDialog == null)
-            timePickerDialog = new TimePickerDialog(this,this,0,0,true);
+    public void showTimePickDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        timePickerDialog = new TimePickerDialog(this, this, hour, minute, true);
         timePickerDialog.show();
     }
 
     @OnClick(R.id.image_button_pick_date)
-    public void showDatePickDialog(){
-        if(datePickerDialog == null) {
+    public void showDatePickDialog() {
+        if (datePickerDialog == null) {
             Calendar calendar = Calendar.getInstance();
-            datePickerDialog = new DatePickerDialog(this,this,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog = new DatePickerDialog(this, this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         }
         datePickerDialog.show();
     }
@@ -131,23 +248,59 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR,year);
-        calendar.set(Calendar.MONTH,month);
-        calendar.set(Calendar.DAY_OF_MONTH,day);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
 
         etDate.setText(dateFormatter.format(calendar.getTime()));
-        Log.d("INFO","Date: " + day + "-" + month + "-" + year);
-
+        Log.d("INFO", "Date: " + day + "-" + month + "-" + year);
     }
 
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minutes) {
         SimpleDateFormat hourFormatter = new SimpleDateFormat("HH:mm");
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minutes);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minutes);
 
         etTime.setText(hourFormatter.format(calendar.getTime()));
-        Log.d("INFO","Time: " + hour + ":" + minutes);
+        Log.d("INFO", "Time: " + hour + ":" + minutes);
+    }
+
+    private void extractDataFromIntent() {
+        Intent data = getIntent();
+        if (data == null)
+            return;
+
+        if (data.getStringExtra(EXTRA_MODE) == null || !data.getStringExtra(EXTRA_MODE).equals(EXTRA_MODE_EDIT)) {
+            return;
+        }
+
+        String date = data.getStringExtra(NewTaskActiivity.EXTRA_DATE);
+        String time = data.getStringExtra(NewTaskActiivity.EXTRA_TIME);
+        String title = data.getStringExtra(NewTaskActiivity.EXTRA_TITLE);
+        String[] tags_extra = (String[]) data.getStringArrayExtra(NewTaskActiivity.EXTRA_TAGS);
+        boolean done = data.getBooleanExtra(NewTaskActiivity.EXTRA_DONE, false);
+        int repeat = data.getIntExtra(NewTaskActiivity.EXTRA_REPEAT_FREQUENCY, NewTaskActiivity.FREQ_NEVER);
+        int remind = data.getIntExtra(NewTaskActiivity.EXTRA_REMIND_FREQUENCY, NewTaskActiivity.FREQ_RING_ONCE);
+        itemPos = data.getIntExtra(NewTaskActiivity.EXTRA_ITEM_POS, 0);
+
+        etDate.setText(date);
+        etTime.setText(time);
+        etTitle.setText(title);
+        chbxDone.setChecked(done);
+        spinnerRemind.setSelection(remind);
+        spinnerRepeat.setSelection(repeat);
+
+        checkedTags.clear();
+        for (int i = 0; i < tags_extra.length; i++) {
+            Log.d("INFO", "Tag extra: " + tags_extra[i]);
+            CheckBox cb = checkBoxList.get(tags_extra[i]);
+            cb.setChecked(true);
+        }
+
+        for (Map.Entry<String, CheckBox> e : checkBoxList.entrySet()) {
+            Log.d("INFO", "Key: " + e.getKey());
+        }
     }
 }

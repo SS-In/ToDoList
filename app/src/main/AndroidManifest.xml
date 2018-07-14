@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ssin.todolist">
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -9,16 +10,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.main.view.MainActivity">
+        <activity
+            android:name=".ui.main.view.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.newtask.view.NewTaskActiivity"></activity>
-        <receiver android:name=".receiver.AlarmReceiver" />
+        <activity android:name=".ui.newtask.view.NewTaskActiivity" />
 
+        <receiver android:name=".receiver.AlarmReceiver" >
+            <intent-filter>
+                <action android:name="com.ssin.todolist.alarm"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".service.NotificationRingtoneService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receiver.StopRingtoneReceiver"
+            android:enabled="true"
+            android:exported="true" />
     </application>
-
 </manifest>

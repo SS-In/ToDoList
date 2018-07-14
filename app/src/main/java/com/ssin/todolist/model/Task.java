@@ -1,11 +1,14 @@
 package com.ssin.todolist.model;
 
+import android.app.PendingIntent;
+
 import com.ssin.todolist.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindString;
 
@@ -14,13 +17,52 @@ import butterknife.BindString;
  */
 
 public class Task implements Taskable{
+    private int taskId;
+    private boolean done;
+    private int remindFreq;
+    private int repeatFreq;
+    private boolean overdue;
+    private String title;
+    private List<Tag> tags;
+    private String date;
+    private String time;
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(int taskId) {
+        this.taskId = taskId;
+    }
 
     @Override
     public boolean isSection() {
         return false;
     }
 
-    private String title;
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    public int getRemindFreq() {
+        return remindFreq;
+    }
+
+    public void setRemindFreq(int remindFreq) {
+        this.remindFreq = remindFreq;
+    }
+
+    public int getRepeatFreq() {
+        return repeatFreq;
+    }
+
+    public void setRepeatFreq(int repeatFreq) {
+        this.repeatFreq = repeatFreq;
+    }
 
     public String getTitle() {
         return title;
@@ -42,11 +84,24 @@ public class Task implements Taskable{
         this.time = time;
     }
 
-    private String date;
-    private String time;
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public boolean isOverdue() {
+        return overdue;
+    }
+
+    public void setOverdue(boolean overdue) {
+        this.overdue = overdue;
     }
 
     public long getDateTimeMilis() {

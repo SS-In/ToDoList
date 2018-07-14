@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="spinner_remind_frequency">
+    <string-array name="repeat_frequency">
         <item>Never</item>
         <item>Once a day</item>
         <item>Once a week</item>
         <item>Once a month</item>
+    </string-array>
+    <string-array name="remind_frequency">
+        <item>Ring once</item>
+        <item>Ring five times</item>
+        <item>Ring nonstop</item>
     </string-array>
 </resources>

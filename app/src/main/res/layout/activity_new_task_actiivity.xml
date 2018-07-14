@@ -1,89 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ssin.todolist.ui.newtask.view.NewTaskActiivity"
+    android:background="@color/background_activity"
     android:padding="16dp"
-    android:background="@color/background_activity">
+    tools:context="com.ssin.todolist.ui.newtask.view.NewTaskActiivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/task_title"
-        android:id="@+id/text_view_task_title"
-        style="@style/SectionText"/>
-    <EditText
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/edit_text_task_title"
-        android:layout_below="@id/text_view_task_title"
-        android:layout_marginBottom="16dp"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/SectionText"
-        android:text="@string/due_date"
-        android:id="@+id/text_view_due_date"
-        android:layout_below="@id/edit_text_task_title"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/edit_text_due_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/text_view_due_date"
-        android:layout_toStartOf="@+id/image_button_pick_date"
-        android:layout_marginBottom="4dp"
-        android:inputType="date"/>
+            <TextView
+                android:id="@+id/text_view_task_title"
+                style="@style/SectionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/task_title" />
 
-    <ImageButton
-        android:id="@+id/image_button_pick_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/edit_text_due_time"
-        android:layout_alignEnd="@+id/edit_text_task_title"
-        android:background="@color/transparent"
-        android:padding="8dp"
-        android:src="@drawable/ic_schedule_24dp" />
+            <CheckBox
+                android:id="@+id/check_box_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/edit_text_task_title"
+                android:layout_alignBottom="@+id/edit_text_task_title"
+                android:layout_alignParentStart="true"
+                tools:buttonTint="@color/colorPrimary" />
 
-    <EditText
-        android:id="@+id/edit_text_due_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/edit_text_due_date"
-        android:layout_toStartOf="@+id/image_button_pick_time"
-        android:inputType="time"/>
+            <EditText
+                android:id="@+id/edit_text_task_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text_view_task_title"
+                android:layout_toEndOf="@+id/text_view_tag" />
 
-    <ImageButton
-        android:id="@+id/image_button_pick_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/edit_text_due_date"
-        android:layout_toEndOf="@+id/edit_text_due_time"
-        android:background="@color/transparent"
-        android:padding="8dp"
-        android:src="@drawable/ic_today_24dp" />
+            <TextView
+                android:id="@+id/text_view_due_date"
+                style="@style/SectionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/edit_text_task_title"
+                android:text="@string/due_date" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/repeat"
-        style="@style/SectionText"
-        android:id="@+id/text_view_repeat"
-        android:layout_below="@id/image_button_pick_time"/>
+            <EditText
+                android:id="@+id/edit_text_due_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/text_view_due_date"
+                android:layout_marginBottom="4dp"
+                android:layout_toStartOf="@+id/image_button_pick_date"
+                android:inputType="date"
+                android:focusable="false" />
 
-    <Spinner
-        android:id="@+id/spinner_repeat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/text_view_repeat"
-        android:layout_below="@id/text_view_repeat"
-        android:layout_toStartOf="@+id/image_button_pick_time"
-        android:layout_marginTop="4dp"/>
+            <ImageButton
+                android:id="@+id/image_button_pick_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/edit_text_due_time"
+                android:layout_alignEnd="@+id/edit_text_task_title"
+                android:background="@color/transparent"
+                android:padding="8dp"
+                android:src="@drawable/ic_schedule_24dp" />
+
+            <EditText
+                android:id="@+id/edit_text_due_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/edit_text_due_date"
+                android:layout_toStartOf="@+id/image_button_pick_time"
+                android:inputType="time"
+                android:focusable="false" />
+
+            <ImageButton
+                android:id="@+id/image_button_pick_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/edit_text_due_date"
+                android:layout_toEndOf="@+id/edit_text_due_time"
+                android:background="@color/transparent"
+                android:padding="8dp"
+                android:src="@drawable/ic_today_24dp" />
 
 
-</RelativeLayout>
+            <TextView
+                android:id="@+id/text_view_repeat"
+                style="@style/SectionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/image_button_pick_time"
+                android:text="@string/repeat" />
+
+            <Spinner
+                android:id="@+id/spinner_repeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/text_view_repeat"
+                android:layout_below="@id/text_view_repeat"
+                android:layout_marginTop="4dp"
+                android:layout_toStartOf="@+id/image_button_pick_time" />
+
+            <TextView
+                android:id="@+id/text_view_tag"
+                style="@style/SectionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/spinner_repeat"
+                android:text="@string/tag" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_view_tag"
+                android:orientation="vertical"
+                android:id="@+id/linear_layout_tags_chkbxs">
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/SectionText"
+                android:text="@string/remind"
+                android:id="@+id/text_view_reminder"
+                android:layout_below="@id/linear_layout_tags_chkbxs" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_remind"
+                android:layout_below="@id/text_view_reminder"
+                android:layout_alignParentStart="true"
+                android:layout_alignEnd="@id/spinner_repeat" />
+        </RelativeLayout>
+    </ScrollView>
+</FrameLayout>
+
+
+
+
+
