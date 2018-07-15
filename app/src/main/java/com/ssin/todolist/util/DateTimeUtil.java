@@ -19,4 +19,11 @@ public class DateTimeUtil {
         Calendar calendar = Calendar.getInstance();
         return format.format(calendar.getTime());
     }
+
+    public static String getDateTomorow() {
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+        return format.format(calendar.getTime());
+    }
 }

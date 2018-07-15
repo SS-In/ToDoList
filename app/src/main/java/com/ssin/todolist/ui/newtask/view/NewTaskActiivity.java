@@ -90,9 +90,11 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
     public static final String EXTRA_TAGS = "tags";
     public static final String EXTRA_MODE = "mode";
     public static final String EXTRA_ITEM_POS = "itempos";
+    public static final String EXTRA_CHILD_ID = "child_id";
 
     public static final String EXTRA_MODE_EDIT = "edit";
     public static final String EXTRA_MODE_CREATE = "create";
+    public static final String EXTRA_TAGS_TO_CREATE = "tagstocreate";
 
     private int itemPos = -1;
 
@@ -140,24 +142,6 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
             }
         });
         checkBoxList = new HashMap<>();
-
-        for (int i = 1; i <= 10; i++) {
-            final CheckBox cb = new CheckBox(this);
-            cb.setText("Tag " + i);
-            layoutCheckBoxes.addView(cb);
-            checkBoxList.put("Tag " + i, cb);
-
-            cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b)
-                        checkedTags.add(cb.getText().toString());
-                    else
-                        checkedTags.remove(cb.getText().toString());
-
-                }
-            });
-        }
 
         currentMode = getIntent().getStringExtra(NewTaskActiivity.EXTRA_MODE);
 
@@ -271,6 +255,25 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
         Intent data = getIntent();
         if (data == null)
             return;
+
+        String[] tags = data.getStringArrayExtra(EXTRA_TAGS_TO_CREATE);
+        for (int i = 0; i < tags.length - 1; i++) {
+            final CheckBox cb = new CheckBox(this);
+            cb.setText(tags[i]);
+            layoutCheckBoxes.addView(cb);
+            checkBoxList.put(tags[i], cb);
+
+            cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b)
+                        checkedTags.add(cb.getText().toString());
+                    else
+                        checkedTags.remove(cb.getText().toString());
+
+                }
+            });
+        }
 
         if (data.getStringExtra(EXTRA_MODE) == null || !data.getStringExtra(EXTRA_MODE).equals(EXTRA_MODE_EDIT)) {
             return;

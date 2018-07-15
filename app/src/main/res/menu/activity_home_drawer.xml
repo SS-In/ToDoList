@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <item android:title="All Tasks" />
+    <item
+        android:title="All Tasks"
+        android:id="@+id/action_all_tasks" />
     <item android:title="Communicate">
         <menu>
             <item

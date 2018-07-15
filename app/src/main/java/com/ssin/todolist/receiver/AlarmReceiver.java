@@ -6,13 +6,10 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.util.Log;
 
 import com.ssin.todolist.R;
 import com.ssin.todolist.service.NotificationRingtoneService;
-import com.ssin.todolist.ui.main.view.MainActivity;
 import com.ssin.todolist.ui.newtask.view.NewTaskActiivity;
 
 /**
@@ -28,6 +25,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             Log.d("Receiver", "Alarm!!!!!!!!!!");
             Intent adapterIntent = new Intent();
             adapterIntent.setAction(OverdueReceiver.ACTION_ADAPTER_UPDATE);
+            ;
             context.sendBroadcast(adapterIntent);
 
             NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

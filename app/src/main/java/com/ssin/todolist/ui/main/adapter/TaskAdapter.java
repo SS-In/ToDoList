@@ -2,7 +2,6 @@ package com.ssin.todolist.ui.main.adapter;
 
 import android.content.Context;
 import android.graphics.Paint;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,8 @@ import com.ssin.todolist.model.Taskable;
 import com.ssin.todolist.util.AlarmUtil;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,14 +33,16 @@ public class TaskAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater inflater;
     private List<Taskable> items;
+    private OnTaskDoneListener onTaskDoneListener;
 
     private static final int TYPE_DATE = 0;
     private static final int TYPE_TASK = 1;
 
-    public TaskAdapter(Context context, List<Taskable> items){
+    public TaskAdapter(Context context, List<Taskable> items, OnTaskDoneListener onTaskDoneListener) {
         this.context = context;
         this.items = items;
         this.inflater = LayoutInflater.from(context);
+        this.onTaskDoneListener = onTaskDoneListener;
     }
 
     public static class DateViewHolder{
@@ -101,7 +101,7 @@ public class TaskAdapter extends BaseAdapter {
             if (view == null ||  !(view.getTag() instanceof TaskViewHolder)) {
                 view = inflater.inflate(R.layout.task_item, viewGroup, false);
                 taskViewHolder = new TaskViewHolder(view);
-                List<Tag> tags = t.getTags();
+                Map<String, Tag> tags = t.getTags();
                 addTextViews(tags,taskViewHolder);
                 view.setTag(taskViewHolder);
             } else {
@@ -113,10 +113,9 @@ public class TaskAdapter extends BaseAdapter {
 
             if(t.getDateTimeMilis() < System.currentTimeMillis() || t.isDone()) {
                 taskViewHolder.timeTv.setTextColor(context.getResources().getColor(R.color.red_600));
-                t.setOverdue(true);
+                ;
             } else {
                 taskViewHolder.timeTv.setTextColor(context.getResources().getColor(R.color.green_500));
-                t.setOverdue(false);
             }
             taskViewHolder.doneChkBx.setChecked(t.isDone());
 
@@ -133,14 +132,18 @@ public class TaskAdapter extends BaseAdapter {
 
                     }
                     t.setDone(b);
+                    if (onTaskDoneListener != null)
+                        onTaskDoneListener.onTaskDone(t);
                     notifyDataSetChanged();
                 }
             });
             if(t.getTags() != null) {
                 if(t.getTags().size() == taskViewHolder.tvTags.size()) {
-                    for (int j = 0; j < t.getTags().size(); j++) {
+                    int j = 0;
+                    for (Map.Entry<String, Tag> tag : t.getTags().entrySet()) {
                         TextView tv = taskViewHolder.tvTags.get(j);
-                        tv.setText(t.getTags().get(j).getName());
+                        tv.setText(tag.getValue().getName());
+                        j++;
                     }
                 } else {
                     taskViewHolder.tvTags.clear();
@@ -175,19 +178,23 @@ public class TaskAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    private void addTextViews(List<Tag> tags, TaskViewHolder taskViewHolder){
+    private void addTextViews(Map<String, Tag> tags, TaskViewHolder taskViewHolder) {
         if(tags != null) {
-            for (Tag tag : tags) {
+            for (Map.Entry<String, Tag> tag : tags.entrySet()) {
                 TextView tv = new TextView(context);
                 float scale = context.getResources().getDisplayMetrics().density;
                 int dpAsPixels = (int) (3 * scale + 0.5f);
                 tv.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-                tv.setBackgroundColor(tag.getBgColor());
-                tv.setTextColor(tag.getTxtColor());
-                tv.setText(tag.getName());
+                tv.setBackgroundColor(tag.getValue().getBgColor());
+                tv.setTextColor(tag.getValue().getTxtColor());
+                tv.setText(tag.getValue().getName());
                 taskViewHolder.tvTags.add(tv);
                 taskViewHolder.llTags.addView(tv);
             }
         }
+    }
+
+    public interface OnTaskDoneListener {
+        void onTaskDone(Task task);
     }
 }

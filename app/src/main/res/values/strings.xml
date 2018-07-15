@@ -19,5 +19,6 @@
     <string name="cancel">Cancel</string>
     <string name="remind">Remind</string>
     <string name="error_title">Enter task title!</string>
+    <string name="tags">Tags</string>
 
 </resources>

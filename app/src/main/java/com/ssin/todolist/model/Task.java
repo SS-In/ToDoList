@@ -1,16 +1,11 @@
 package com.ssin.todolist.model;
 
-import android.app.PendingIntent;
-
-import com.ssin.todolist.R;
+import com.google.firebase.database.Exclude;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import butterknife.BindString;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by SS-In on 2018-07-07.
@@ -21,11 +16,15 @@ public class Task implements Taskable{
     private boolean done;
     private int remindFreq;
     private int repeatFreq;
-    private boolean overdue;
     private String title;
-    private List<Tag> tags;
+    private Map<String, Tag> tags;
     private String date;
     private String time;
+    private String parent;
+
+    public Task() {
+        tags = new HashMap<>();
+    }
 
     public int getTaskId() {
         return taskId;
@@ -84,24 +83,16 @@ public class Task implements Taskable{
         this.time = time;
     }
 
-    public List<Tag> getTags() {
+    public Map<String, Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Map<String, Tag> tags) {
         this.tags = tags;
     }
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public boolean isOverdue() {
-        return overdue;
-    }
-
-    public void setOverdue(boolean overdue) {
-        this.overdue = overdue;
     }
 
     public long getDateTimeMilis() {
@@ -112,5 +103,27 @@ public class Task implements Taskable{
             pe.printStackTrace();
         }
         return 0;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("taskId", taskId);
+        map.put("done", done);
+        map.put("remindFreq", remindFreq);
+        map.put("repeatFreq", repeatFreq);
+        map.put("title", title);
+        map.put("tags", tags);
+        map.put("date", date);
+        map.put("time", time);
+        return map;
     }
 }
