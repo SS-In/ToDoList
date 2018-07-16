@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ToDoList</string>
+    <string name="app_name">TO DO LIST</string>
     <string name="task_title">Task title</string>
     <string name="due_date">Due date</string>
     <string name="repeat">Repeat</string>
@@ -20,5 +20,30 @@
     <string name="remind">Remind</string>
     <string name="error_title">Enter task title!</string>
     <string name="tags">Tags</string>
+
+    <string name="new_account_btn">Need a new account?</string>
+    <string name="login_btn">Login</string>
+    <string name="display_name">Display name</string>
+    <string name="email">E-mail</string>
+    <string name="password">Password</string>
+    <string name="register_btn">Register</string>
+    <string name="register_title">Create a new account</string>
+    <string name="password_confirm">Confirm password</string>
+
+    <string name="register_message_email_error">Email cannot be empty</string>
+    <string name="register_message_displayname_error">Display name cannot be empty</string>
+    <string name="register_message_password_error">Enter password</string>
+    <string name="register_message_confirm_password_error">Enter confirm password</string>
+    <string name="register_account_created">Account was created succefully</string>
+    <string name="register_password_not_match">Passwords do not match</string>
+    <string name="register_invalid_email_format">Enter email in the valid format</string>
+    <string name="register_server_error">A general server error occured</string>
+    <string name="create_new_account">Create a new accout</string>
+    <string name="login_to_account">Login to your account</string>
+    <string name="login_in_progress">Login in progress. Please wait...</string>
+    <string name="register_in_progress">Creating account in progress. Please wait...</string>
+
+    <string name="login_email_empty">Email field cannot be empty</string>
+    <string name="login_password_empty">Password field cannot be empty</string>
 
 </resources>

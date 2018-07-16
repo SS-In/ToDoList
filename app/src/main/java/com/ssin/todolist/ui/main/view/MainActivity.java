@@ -32,6 +32,7 @@ import com.ssin.todolist.ui.main.module.DaggerMainComponent;
 import com.ssin.todolist.ui.main.module.MainModule;
 import com.ssin.todolist.ui.main.presenter.MainPresenter;
 import com.ssin.todolist.ui.newtask.view.NewTaskActiivity;
+import com.ssin.todolist.ui.splash.view.SplashActivity;
 import com.ssin.todolist.util.AlarmUtil;
 import com.ssin.todolist.util.DateTimeUtil;
 
@@ -259,8 +260,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             presenter.onAllTaskFetch();
             filtered = false;
 
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_logout) {
+            presenter.logout();
         }
 
         drawer.closeDrawer(GravityCompat.START);
@@ -367,5 +368,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onTaskDone(Task task) {
         presenter.onTaskUpdate(task);
+    }
+
+    @Override
+    public void navigateToSplash() {
+        Intent intent = new Intent(this, SplashActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

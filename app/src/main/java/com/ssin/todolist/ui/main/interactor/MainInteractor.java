@@ -12,30 +12,28 @@ import java.util.List;
 
 public interface MainInteractor {
     void addNewTask(Task task);
-
     void updateTask(Task task);
-
     void fetchAllTasks(OnTaskAddListener onTaskAddListener);
-
     void fetchAllTags(TagsListener tagsListener);
-
     void addNewTag(String name);
-
     void getTasksByTag(String tag);
-
     void getTasksByDate(String date);
 
     interface OnTaskAddListener {
         void onAllTaskFetched(List<Taskable> tasks);
-
         void onNewTaskAdded(Task task);
-
         void onTaskFetched(Task task);
     }
 
     interface TagsListener {
         void onAllTagsFetched(List<Tag> tags);
     }
+
+    interface OnLogoutFinishListener {
+        void onSuccess();
+    }
+
+    void logout(OnLogoutFinishListener listener);
 }
 
 

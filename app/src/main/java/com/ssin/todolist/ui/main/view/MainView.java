@@ -13,6 +13,7 @@ import java.util.List;
 public interface MainView {
     void setTaskList(List<Taskable> tasks);
     void setTagsList(List<Tag> tags);
-
     void addNewItem(Task task);
+
+    void navigateToSplash();
 }

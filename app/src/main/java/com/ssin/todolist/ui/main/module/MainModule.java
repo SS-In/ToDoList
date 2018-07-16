@@ -1,5 +1,6 @@
 package com.ssin.todolist.ui.main.module;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.ssin.todolist.ui.main.interactor.MainInteractor;
 import com.ssin.todolist.ui.main.interactor.MainInteractorImpl;
@@ -38,7 +39,7 @@ public class MainModule {
 
     @Singleton
     @Provides
-    public MainInteractor provideMainInteractor(DatabaseReference reference) {
-        return new MainInteractorImpl(reference);
+    public MainInteractor provideMainInteractor(DatabaseReference reference, FirebaseAuth auth) {
+        return new MainInteractorImpl(reference, auth);
     }
 }

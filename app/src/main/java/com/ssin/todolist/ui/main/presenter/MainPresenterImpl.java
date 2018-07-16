@@ -12,7 +12,7 @@ import java.util.List;
  * Created by SS-In on 2018-07-15.
  */
 
-public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAddListener,
+public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAddListener, MainInteractor.OnLogoutFinishListener,
         MainInteractor.TagsListener {
     private MainView mainView;
     private MainInteractor mainInteractor;
@@ -75,5 +75,15 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
     @Override
     public void onGetTasksByDate(String date) {
         mainInteractor.getTasksByDate(date);
+    }
+
+    @Override
+    public void logout() {
+        mainInteractor.logout(this);
+    }
+
+    @Override
+    public void onSuccess() {
+        mainView.navigateToSplash();
     }
 }

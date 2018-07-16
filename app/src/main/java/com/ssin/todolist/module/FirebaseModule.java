@@ -1,5 +1,6 @@
 package com.ssin.todolist.module;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -17,5 +18,11 @@ public class FirebaseModule {
     @Provides
     public DatabaseReference provideDatabaseReference() {
         return FirebaseDatabase.getInstance().getReference();
+    }
+
+    @Singleton
+    @Provides
+    public FirebaseAuth provideFirebaseAuth() {
+        return FirebaseAuth.getInstance();
     }
 }
