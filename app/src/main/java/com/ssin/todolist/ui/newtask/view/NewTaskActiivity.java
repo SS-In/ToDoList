@@ -95,6 +95,7 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
     public static final String EXTRA_MODE_EDIT = "edit";
     public static final String EXTRA_MODE_CREATE = "create";
     public static final String EXTRA_TAGS_TO_CREATE = "tagstocreate";
+    public static final String EXTRA_TASK_TITLE = "task_title";
 
     private int itemPos = -1;
 

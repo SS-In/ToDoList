@@ -1,6 +1,9 @@
 package com.ssin.todolist.ui.main.view;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.NotificationManager;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -12,13 +15,16 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.ssin.todolist.R;
 import com.ssin.todolist.model.Tag;
@@ -38,6 +44,7 @@ import com.ssin.todolist.util.AlarmUtil;
 import com.ssin.todolist.util.DateTimeUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +57,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, AdapterView.OnItemClickListener, OverdueReceiver.Callback, TaskAdapter.OnTaskDoneListener {
-    private OverdueReceiver overdueReceiver;
     @BindView(R.id.list_view) ListView list;
     @BindView(R.id.fab_new_task)
     FloatingActionButton newTaskFab;
     @BindView(R.id.toolbar)  Toolbar toolbar;
-    @BindView(R.id.drawer_layout)    DrawerLayout drawer;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
 
     //nav header
@@ -70,17 +77,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String newTagStr;
     @BindString(R.string.my_tasks)
     String myTasksStr;
+    @BindString(R.string.snooze)
+    String snoozeStr;
 
     @Inject
     MainPresenter presenter;
 
     private int order = 0;
     private int tagMenuOrder = 0;
-
     private SubMenu menuTags;
-
     private TaskAdapter adapter;
+    private OverdueReceiver overdueReceiver;
     private boolean filtered;
+    private String lastChildIdFromNotification;
+
+    public static final String ACTION_LOGIN = "action_login";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,23 +140,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
             }
         }).setIcon(getResources().getDrawable(R.drawable.calendar_today));
-       /* filters.add(0,0,order++,"Uncategorized");
-        filters.add(0,0,1000,"Add new filter").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                drawer.closeDrawer(GravityCompat.START);
-                EditTextDialog dialog = new EditTextDialog(MainActivity.this, new EditTextDialog.OnTextSetListener() {
-                    @Override
-                    public void onTextSet(String text) {
-                        Log.d("Dialog","Text from dialog: " + text);
-                        filters.add(0,0,order++,text);
-                    }
-                });
-                dialog.getAlertDialog().setTitle("Add new filter");
-                dialog.getAlertDialog().show();
-                return true;
-            }
-        });*/
 
         menuTags = navigationView.getMenu().addSubMenu(0, 0, 998, tagsStr);
 
@@ -192,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("INFO", "onActivityResult: requestCode: " + requestCode);
         if(requestCode == 1){
             if(resultCode == Activity.RESULT_OK){
                 String date = data.getStringExtra(NewTaskActiivity.EXTRA_DATE);
@@ -267,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -403,6 +398,102 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (displayName != null)
             tvUserDisplayName.setText(displayName);
         tvUserEmail.setText(email);
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent.getAction().equals("action_done")) {
+            String childid = intent.getStringExtra(NewTaskActiivity.EXTRA_CHILD_ID);
+            int notid = intent.getIntExtra("notification_id", -1);
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.cancel(notid);
+            Task t = adapter.getTaskById(childid);
+            t.setDone(true);
+            adapter.notifyDataSetChanged();
+            presenter.onTaskUpdate(t);
+        }
+
+        if (intent.getAction().equals("action_snooze")) {
+            String childid = intent.getStringExtra(NewTaskActiivity.EXTRA_CHILD_ID);
+            lastChildIdFromNotification = childid;
+            int notid = intent.getIntExtra("notification_id", -1);
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.cancel(notid);
+
+            registerForContextMenu(newTaskFab);
+            openContextMenu(newTaskFab);
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        menu.setHeaderTitle(snoozeStr);
+        getMenuInflater().inflate(R.menu.menu_context_snooze, menu);
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_date_and_time) {
+            handleSnoozeAction(lastChildIdFromNotification);
+        }
+        return true;
+    }
+
+    private void handleSnoozeAction(String childId) {
+        final Task task = adapter.getTaskById(childId);
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+
+                task.setDate(DateTimeUtil.getDate(i, i1, i2));
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                        task.setTime(DateTimeUtil.getTime(i, i1));
+                        AlarmUtil.setAlarm(task, getApplicationContext());
+                        adapter.notifyDataSetChanged();
+                        presenter.onTaskUpdate(task);
+                    }
+                }, hour, minute, true);
+                timePickerDialog.show();
+
+            }
+        }, year, month, day);
+
+        datePickerDialog.show();
+    }
+
+    @Override
+    public void setAlarms() {
+        Intent intent = getIntent();
+
+        if (intent != null) {
+            if (intent.getAction() != null && intent.getAction().equals(ACTION_LOGIN)) {
+                if (adapter != null) {
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        Task t = (Task) adapter.getItem(i);
+                        AlarmUtil.setAlarm(t, getApplicationContext());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void cancelAllAlarms() {
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                Task t = (Task) adapter.getItem(i);
+                AlarmUtil.cancelAlarm(t, getApplicationContext());
+            }
+        }
     }
 }

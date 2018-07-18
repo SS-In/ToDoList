@@ -21,6 +21,7 @@ public class AlarmUtil {
             intent.putExtra(NewTaskActiivity.EXTRA_REPEAT_FREQUENCY, task.getRepeatFreq());
             intent.putExtra(NewTaskActiivity.EXTRA_REMIND_FREQUENCY, task.getRemindFreq());
             intent.putExtra(NewTaskActiivity.EXTRA_CHILD_ID, task.getParent());
+            intent.putExtra(NewTaskActiivity.EXTRA_TASK_TITLE, task.getTitle());
             intent.setAction(AlarmReceiver.ACTION_ALARM);
             PendingIntent alarmIntent = PendingIntent.getBroadcast(context, task.getTaskId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.set(AlarmManager.RTC_WAKEUP, task.getDateTimeMilis(), alarmIntent);
@@ -33,6 +34,7 @@ public class AlarmUtil {
         intent.putExtra(NewTaskActiivity.EXTRA_REPEAT_FREQUENCY, task.getRepeatFreq());
         intent.putExtra(NewTaskActiivity.EXTRA_REMIND_FREQUENCY, task.getRemindFreq());
         intent.putExtra(NewTaskActiivity.EXTRA_CHILD_ID, task.getParent());
+        intent.putExtra(NewTaskActiivity.EXTRA_TASK_TITLE, task.getTitle());
         intent.setAction(AlarmReceiver.ACTION_ALARM);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, task.getTaskId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(alarmIntent);

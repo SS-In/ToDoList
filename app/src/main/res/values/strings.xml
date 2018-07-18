@@ -47,5 +47,7 @@
     <string name="login_password_empty">Password field cannot be empty</string>
     <string name="add_new_tag">Create a new tag</string>
     <string name="my_tasks">My tasks</string>
+    <string name="snooze">Snooze</string>
+    <string name="date_and_time">Date and time</string>
 
 </resources>

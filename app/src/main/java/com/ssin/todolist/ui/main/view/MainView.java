@@ -18,4 +18,8 @@ public interface MainView {
     void navigateToSplash();
 
     void setUserProfile(String email, String displayName);
+
+    void setAlarms();
+
+    void cancelAllAlarms();
 }

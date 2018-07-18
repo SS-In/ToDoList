@@ -118,19 +118,12 @@ public class TaskAdapter extends BaseAdapter {
                 taskViewHolder.timeTv.setTextColor(context.getResources().getColor(R.color.green_500));
             }
             taskViewHolder.doneChkBx.setChecked(t.isDone());
+            crossText(taskViewHolder, t.isDone(), t);
 
             taskViewHolder.doneChkBx.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b) {
-                        taskViewHolder.titleTv.setPaintFlags(taskViewHolder.titleTv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        AlarmUtil.cancelAlarm(t,context);
-                    }
-                    else {
-                        taskViewHolder.titleTv.setPaintFlags(taskViewHolder.titleTv.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-                        AlarmUtil.setAlarm(t,context);
-
-                    }
+                    crossText(taskViewHolder, b, t);
                     t.setDone(b);
                     if (onTaskDoneListener != null)
                         onTaskDoneListener.onTaskDone(t);
@@ -196,5 +189,29 @@ public class TaskAdapter extends BaseAdapter {
 
     public interface OnTaskDoneListener {
         void onTaskDone(Task task);
+    }
+
+    public Task getTaskById(String parent) {
+        for (int i = 0; i < items.size(); i++) {
+            if (!(getItem(i) instanceof Task)) {
+                continue;
+            } else {
+                Task t = (Task) getItem(i);
+                if (t.getParent().equals(parent))
+                    return t;
+            }
+        }
+        return null;
+    }
+
+    private void crossText(TaskViewHolder taskViewHolder, boolean cross, Task t) {
+        if (cross) {
+            taskViewHolder.titleTv.setPaintFlags(taskViewHolder.titleTv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            AlarmUtil.cancelAlarm(t, context);
+        } else {
+            taskViewHolder.titleTv.setPaintFlags(taskViewHolder.titleTv.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            AlarmUtil.setAlarm(t, context);
+
+        }
     }
 }

@@ -84,6 +84,7 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
 
     @Override
     public void onSuccess() {
+        mainView.cancelAllAlarms();
         mainView.navigateToSplash();
     }
 
@@ -95,5 +96,6 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
     @Override
     public void onGetProfileFinished(String email, String displayName) {
         mainView.setUserProfile(email, displayName);
+        mainView.setAlarms();
     }
 }

@@ -60,6 +60,7 @@ public class SplashActivity extends AppCompatActivity implements SplashView {
     @OnClick(R.id.button_login)
     public void navigateToLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
+        intent.setAction(MainActivity.ACTION_LOGIN);
         startActivity(intent);
 
     }
