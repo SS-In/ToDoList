@@ -4,17 +4,18 @@
     tools:showIn="navigation_view">
 
     <item
-        android:title="All Tasks"
+        android:title="@string/my_tasks"
+        android:icon="@drawable/calendar_check"
         android:id="@+id/action_all_tasks" />
-    <item android:title="Communicate">
+    <item android:orderInCategory="1000">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings_black_48dp"
                 android:title="@string/action_settings" />
             <item
                 android:id="@+id/nav_logout"
-                android:icon="@drawable/ic_menu_send"
+                android:icon="@drawable/logout"
                 android:title="@string/action_logout" />
         </menu>
     </item>

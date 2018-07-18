@@ -16,4 +16,6 @@ public interface MainView {
     void addNewItem(Task task);
 
     void navigateToSplash();
+
+    void setUserProfile(String email, String displayName);
 }

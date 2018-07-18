@@ -45,5 +45,7 @@
 
     <string name="login_email_empty">Email field cannot be empty</string>
     <string name="login_password_empty">Password field cannot be empty</string>
+    <string name="add_new_tag">Create a new tag</string>
+    <string name="my_tasks">My tasks</string>
 
 </resources>

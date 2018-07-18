@@ -18,6 +18,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ssin.todolist.R;
 import com.ssin.todolist.model.Tag;
@@ -36,6 +37,7 @@ import com.ssin.todolist.ui.splash.view.SplashActivity;
 import com.ssin.todolist.util.AlarmUtil;
 import com.ssin.todolist.util.DateTimeUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +58,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @BindView(R.id.drawer_layout)    DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
 
+    //nav header
+    TextView tvUserDisplayName;
+    TextView tvUserEmail;
+
     @BindString(R.string.today) String today;
     @BindString(R.string.tomorrow) String tomorrow;
     @BindString(R.string.tags)
     String tagsStr;
+    @BindString(R.string.add_new_tag)
+    String newTagStr;
+    @BindString(R.string.my_tasks)
+    String myTasksStr;
 
     @Inject
     MainPresenter presenter;
@@ -76,6 +86,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        View headerLayout = navigationView.getHeaderView(0);
+        ButterKnife.bind(headerLayout);
+
+        tvUserDisplayName = (TextView) headerLayout.findViewById(R.id.text_view_user_displayname);
+        tvUserEmail = (TextView) headerLayout.findViewById(R.id.text_view_user_email);
 
         DaggerMainComponent.builder()
                 .firebaseModule(new FirebaseModule())
@@ -86,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         overdueReceiver = new OverdueReceiver(this);
 
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setTitle(myTasksStr);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -94,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
-        final SubMenu filters = navigationView.getMenu().addSubMenu("Filters");
+        final SubMenu filters = navigationView.getMenu().addSubMenu(0, 0, 999, "Filters");
         filters.add(0, 0, order++, today).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
@@ -103,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle(menuItem.getTitle());
                 return true;
             }
-        });
+        }).setIcon(getResources().getDrawable(R.drawable.calendar_today));
         filters.add(0, 0, order++, tomorrow).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
@@ -112,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle(menuItem.getTitle());
                 return true;
             }
-        });
-        filters.add(0,0,order++,"Uncategorized");
+        }).setIcon(getResources().getDrawable(R.drawable.calendar_today));
+       /* filters.add(0,0,order++,"Uncategorized");
         filters.add(0,0,1000,"Add new filter").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
@@ -129,12 +144,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dialog.getAlertDialog().show();
                 return true;
             }
-        });
+        });*/
 
-        menuTags = navigationView.getMenu().addSubMenu(tagsStr);
+        menuTags = navigationView.getMenu().addSubMenu(0, 0, 998, tagsStr);
 
         presenter.onAllTaskFetch();
         presenter.onAllTagsFetch();
+
+        setTaskList(new ArrayList<Taskable>());
     }
 
     @Override
@@ -151,6 +168,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause() {
         super.onPause();
         unregisterReceiver(overdueReceiver);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.getUserInfo();
     }
 
     @OnClick(R.id.fab_new_task)
@@ -245,10 +268,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -259,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.action_all_tasks) {
             presenter.onAllTaskFetch();
             filtered = false;
+            getSupportActionBar().setTitle(myTasksStr);
 
         } else if (id == R.id.nav_logout) {
             presenter.logout();
@@ -280,7 +300,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         menuTags.clear();
         tagMenuOrder = 0;
         for (Tag t : list) {
-            menuTags.add(0, 0, tagMenuOrder++, t.getName()).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            menuTags.add(0, 0, tagMenuOrder++, t.getName())
+                    .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     drawer.closeDrawer(GravityCompat.START);
@@ -289,9 +310,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     filtered = true;
                     return true;
                 }
-            });
+                    }).setIcon(getResources().getDrawable(R.drawable.ic_label_black_48dp));
         }
-        menuTags.add(0, 0, 1000, "Add new tag").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        menuTags.add(0, 0, 1000, newTagStr).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 drawer.closeDrawer(GravityCompat.START);
@@ -303,11 +324,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         presenter.onNewTagAdd(text);
                     }
                 });
-                dialog.getAlertDialog().setTitle("Add new tag");
+                dialog.getAlertDialog().setTitle(newTagStr);
                 dialog.getAlertDialog().show();
                 return true;
             }
-        });
+        }).setIcon(getResources().getDrawable(R.drawable.ic_add_black_48dp));
     }
 
     @Override
@@ -375,5 +396,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent(this, SplashActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void setUserProfile(String email, String displayName) {
+        if (displayName != null)
+            tvUserDisplayName.setText(displayName);
+        tvUserEmail.setText(email);
+
     }
 }

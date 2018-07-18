@@ -3,6 +3,7 @@ package com.ssin.todolist.ui.main.interactor;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,8 +34,9 @@ public class MainInteractorImpl implements MainInteractor {
     private ValueEventListener tagEventListener;
 
     public MainInteractorImpl(DatabaseReference reference, FirebaseAuth auth) {
-        this.reference = reference.child("tasks");
-        this.tagsReference = reference.child("tags");
+        this.reference = reference.child(auth.getCurrentUser().getUid()).child("tasks");
+        this.tagsReference = reference.child(auth.getCurrentUser().getUid()).child("tags");
+
         this.auth = auth;
 
         childEventListener = new ChildEventListener() {
@@ -203,5 +205,16 @@ public class MainInteractorImpl implements MainInteractor {
     public void logout(OnLogoutFinishListener listener) {
         auth.signOut();
         listener.onSuccess();
+    }
+
+    @Override
+    public void getUserProfile(OnGetUserProfileFinishListener listener) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            String email = user.getEmail();
+            String displayname = user.getDisplayName();
+
+            listener.onGetProfileFinished(email, displayname);
+        }
     }
 }

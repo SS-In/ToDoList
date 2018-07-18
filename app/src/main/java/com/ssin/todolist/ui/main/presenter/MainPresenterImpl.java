@@ -13,7 +13,7 @@ import java.util.List;
  */
 
 public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAddListener, MainInteractor.OnLogoutFinishListener,
-        MainInteractor.TagsListener {
+        MainInteractor.TagsListener, MainInteractor.OnGetUserProfileFinishListener {
     private MainView mainView;
     private MainInteractor mainInteractor;
 
@@ -85,5 +85,15 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
     @Override
     public void onSuccess() {
         mainView.navigateToSplash();
+    }
+
+    @Override
+    public void getUserInfo() {
+        mainInteractor.getUserProfile(this);
+    }
+
+    @Override
+    public void onGetProfileFinished(String email, String displayName) {
+        mainView.setUserProfile(email, displayName);
     }
 }

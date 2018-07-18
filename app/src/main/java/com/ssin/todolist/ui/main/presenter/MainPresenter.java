@@ -15,5 +15,7 @@ public interface MainPresenter {
     void onGetTasksByTag(String tag);
     void onGetTasksByDate(String date);
 
+    void getUserInfo();
+
     void logout();
 }

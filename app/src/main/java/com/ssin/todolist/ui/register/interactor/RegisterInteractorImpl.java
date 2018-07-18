@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 /**
  * Created by SS-In on 2018-07-16.
@@ -21,7 +22,7 @@ public class RegisterInteractorImpl implements RegisterInteractor {
     }
 
     @Override
-    public void register(String email, String password, String confirmPassword, String displayName, final OnFinishedListener onFinishedListener) {
+    public void register(String email, String password, String confirmPassword, final String displayName, final OnFinishedListener onFinishedListener) {
         boolean error = false;
 
         if (TextUtils.isEmpty(email)) {
@@ -55,7 +56,16 @@ public class RegisterInteractorImpl implements RegisterInteractor {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        onFinishedListener.onSuccess();
+                        UserProfileChangeRequest request = new UserProfileChangeRequest.Builder().setDisplayName(displayName).build();
+                        auth.getCurrentUser().updateProfile(request).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful())
+                                    onFinishedListener.onSuccess();
+                                else
+                                    onFinishedListener.onServerError(task.getException().getLocalizedMessage());
+                            }
+                        });
                     } else {
                         onFinishedListener.onServerError(task.getException().getLocalizedMessage());
 

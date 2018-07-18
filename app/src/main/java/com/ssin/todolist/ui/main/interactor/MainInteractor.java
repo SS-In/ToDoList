@@ -19,6 +19,8 @@ public interface MainInteractor {
     void getTasksByTag(String tag);
     void getTasksByDate(String date);
 
+    void getUserProfile(OnGetUserProfileFinishListener listener);
+
     interface OnTaskAddListener {
         void onAllTaskFetched(List<Taskable> tasks);
         void onNewTaskAdded(Task task);
@@ -31,6 +33,10 @@ public interface MainInteractor {
 
     interface OnLogoutFinishListener {
         void onSuccess();
+    }
+
+    interface OnGetUserProfileFinishListener {
+        void onGetProfileFinished(String email, String displayName);
     }
 
     void logout(OnLogoutFinishListener listener);
