@@ -230,6 +230,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 task3.setRepeatFreq(repeat);
                 task3.setRemindFreq(remind);
 
+                if (task3.isDone()) {
+                    task3.setDoneTime(DateTimeUtil.getTimeNow());
+                    task3.setDoneDate(DateTimeUtil.getDateNow());
+                }
+
                 if(data.getStringExtra(NewTaskActiivity.EXTRA_MODE).equals(NewTaskActiivity.EXTRA_MODE_CREATE)) {
                     task3.setTaskId((int)System.currentTimeMillis());
                     presenter.onNewTaskAdd(task3);
@@ -409,6 +414,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             nm.cancel(notid);
             Task t = adapter.getTaskById(childid);
             t.setDone(true);
+            t.setDoneDate(DateTimeUtil.getDateNow());
+            t.setDoneTime(DateTimeUtil.getTimeNow());
             adapter.notifyDataSetChanged();
             presenter.onTaskUpdate(t);
         }

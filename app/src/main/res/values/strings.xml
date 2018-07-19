@@ -49,5 +49,7 @@
     <string name="my_tasks">My tasks</string>
     <string name="snooze">Snooze</string>
     <string name="date_and_time">Date and time</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="finished">Finished</string>
 
 </resources>

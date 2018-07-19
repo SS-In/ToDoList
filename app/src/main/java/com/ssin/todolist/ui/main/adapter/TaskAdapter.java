@@ -17,6 +17,7 @@ import com.ssin.todolist.model.Task;
 import com.ssin.todolist.model.TaskHeader;
 import com.ssin.todolist.model.Taskable;
 import com.ssin.todolist.util.AlarmUtil;
+import com.ssin.todolist.util.DateTimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,12 @@ public class TaskAdapter extends BaseAdapter {
     private List<Taskable> items;
     private OnTaskDoneListener onTaskDoneListener;
 
+    private String todayStr;
+    private String yesterdayStr;
+    private String tomorrowStr;
+    private String[] daysOfWeekArr;
+    private String finishedStr;
+
     private static final int TYPE_DATE = 0;
     private static final int TYPE_TASK = 1;
 
@@ -43,6 +50,12 @@ public class TaskAdapter extends BaseAdapter {
         this.items = items;
         this.inflater = LayoutInflater.from(context);
         this.onTaskDoneListener = onTaskDoneListener;
+
+        this.todayStr = context.getResources().getString(R.string.today);
+        this.yesterdayStr = context.getResources().getString(R.string.yesterday);
+        this.tomorrowStr = context.getResources().getString(R.string.tomorrow);
+        this.daysOfWeekArr = context.getResources().getStringArray(R.array.days_of_week);
+        this.finishedStr = context.getResources().getString(R.string.finished);
     }
 
     public static class DateViewHolder{
@@ -98,6 +111,7 @@ public class TaskAdapter extends BaseAdapter {
 
         if(getItemViewType(i) == TYPE_TASK) {
             final Task t = (Task)getTask(i);
+
             if (view == null ||  !(view.getTag() instanceof TaskViewHolder)) {
                 view = inflater.inflate(R.layout.task_item, viewGroup, false);
                 taskViewHolder = new TaskViewHolder(view);
@@ -109,22 +123,37 @@ public class TaskAdapter extends BaseAdapter {
             }
 
             taskViewHolder.titleTv.setText(t.getTitle());
-            taskViewHolder.timeTv.setText(t.getTime());
 
-            if(t.getDateTimeMilis() < System.currentTimeMillis() || t.isDone()) {
+            taskViewHolder.timeTv.setText(DateTimeUtil.getDateTimeWithDayName(daysOfWeekArr, t.getDate(), t.getTime(), todayStr, tomorrowStr, yesterdayStr));
+
+            if (t.getDateTimeMilis() < System.currentTimeMillis() && !t.isDone()) {
                 taskViewHolder.timeTv.setTextColor(context.getResources().getColor(R.color.red_600));
-                ;
+
+            } else if (t.isDone()) {
+                taskViewHolder.timeTv.setTextColor(context.getResources().getColor(R.color.grey_400));
             } else {
                 taskViewHolder.timeTv.setTextColor(context.getResources().getColor(R.color.green_500));
             }
             taskViewHolder.doneChkBx.setChecked(t.isDone());
             crossText(taskViewHolder, t.isDone(), t);
 
+            if (!t.isDone()) {
+                taskViewHolder.timeTv.setText(DateTimeUtil.getDateTimeWithDayName(daysOfWeekArr, t.getDate(), t.getTime(), todayStr, tomorrowStr, yesterdayStr));
+            } else {
+                taskViewHolder.timeTv.setText(finishedStr + " " + DateTimeUtil.getDateTimeWithDayName(daysOfWeekArr, t.getDoneDate(), t.getDoneTime(), todayStr, tomorrowStr, yesterdayStr));
+            }
+
             taskViewHolder.doneChkBx.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     crossText(taskViewHolder, b, t);
                     t.setDone(b);
+
+                    if (compoundButton.isPressed()) {
+                        t.setDoneDate(DateTimeUtil.getDateNow());
+                        t.setDoneTime(DateTimeUtil.getTimeNow());
+                    }
+
                     if (onTaskDoneListener != null)
                         onTaskDoneListener.onTaskDone(t);
                     notifyDataSetChanged();
@@ -206,9 +235,11 @@ public class TaskAdapter extends BaseAdapter {
 
     private void crossText(TaskViewHolder taskViewHolder, boolean cross, Task t) {
         if (cross) {
+            taskViewHolder.titleTv.setTextColor(context.getResources().getColor(R.color.grey_400));
             taskViewHolder.titleTv.setPaintFlags(taskViewHolder.titleTv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             AlarmUtil.cancelAlarm(t, context);
         } else {
+            taskViewHolder.titleTv.setTextColor(context.getResources().getColor(R.color.black));
             taskViewHolder.titleTv.setPaintFlags(taskViewHolder.titleTv.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
             AlarmUtil.setAlarm(t, context);
 

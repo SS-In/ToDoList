@@ -21,6 +21,24 @@ public class Task implements Taskable{
     private String date;
     private String time;
     private String parent;
+    private String doneDate = "";
+    private String doneTime = "";
+
+    public String getDoneDate() {
+        return doneDate;
+    }
+
+    public void setDoneDate(String doneDate) {
+        this.doneDate = doneDate;
+    }
+
+    public String getDoneTime() {
+        return doneTime;
+    }
+
+    public void setDoneTime(String doneTime) {
+        this.doneTime = doneTime;
+    }
 
     public Task() {
         tags = new HashMap<>();
@@ -124,7 +142,10 @@ public class Task implements Taskable{
         map.put("tags", tags);
         map.put("date", date);
         map.put("time", time);
+        map.put("doneDate", doneDate);
+        map.put("doneTime", doneTime);
         return map;
     }
+
 
 }

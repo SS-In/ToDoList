@@ -11,5 +11,6 @@
     <color name="white">#ffffff</color>
     <color name="red_600">#e53935</color>
     <color name="splash_background">#140d3a</color>
+    <color name="grey_400">#BDBDBD</color>
 
 </resources>
