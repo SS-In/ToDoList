@@ -1,8 +1,9 @@
 package com.ssin.todolist.ui.newtask.view;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -42,6 +43,13 @@ import butterknife.OnClick;
 public class NewTaskActiivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     @BindString(R.string.error_title)
     String errorTitle;
+
+    @BindString(R.string.delete_task)
+    String deleteItemStr;
+    @BindString(R.string.cancel)
+    String cancelStr;
+    @BindString(R.string.ok)
+    String okStr;
 
     @BindString(R.string.title_new_task)
     String title;
@@ -96,6 +104,7 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
     public static final String EXTRA_MODE_CREATE = "create";
     public static final String EXTRA_TAGS_TO_CREATE = "tagstocreate";
     public static final String EXTRA_TASK_TITLE = "task_title";
+    public static final String EXTRA_DELETE = "delete";
 
     private int itemPos = -1;
 
@@ -110,6 +119,9 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
 
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
+
+    public static int RESULT_CREATE_EDIT = 9999;
+    public static int RESULT_DELETE = 9998;
 
     private List<String> checkedTags;
 
@@ -172,7 +184,12 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.new_task_menu, menu);
+        if (getIntent().getStringExtra(EXTRA_MODE) == null || !getIntent().getStringExtra(EXTRA_MODE).equals(EXTRA_MODE_EDIT)) {
+            getMenuInflater().inflate(R.menu.new_task_menu, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.menu_edit_task, menu);
+        }
+
         return true;
     }
 
@@ -204,8 +221,28 @@ public class NewTaskActiivity extends AppCompatActivity implements TimePickerDia
 
             for (String s : checkedTags)
                 Log.d("NewTaskAct", s);
-            setResult(Activity.RESULT_OK, data);
+            setResult(RESULT_CREATE_EDIT, data);
             finish();
+        } else if (item.getItemId() == R.id.action_delete) {
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setMessage(deleteItemStr)
+                    .setNegativeButton(cancelStr, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setPositiveButton(okStr, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent data = new Intent();
+                            data.putExtra(EXTRA_ITEM_POS, itemPos);
+                            setResult(RESULT_DELETE, data);
+                            dialogInterface.dismiss();
+                            finish();
+                        }
+                    }).create();
+            dialog.show();
         }
         return true;
     }

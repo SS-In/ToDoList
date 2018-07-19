@@ -19,6 +19,8 @@ public interface MainInteractor {
     void getTasksByTag(String tag);
     void getTasksByDate(String date);
 
+    void deleteTask(Task task, OnTaskDeleteFinishListener listener);
+
     void getUserProfile(OnGetUserProfileFinishListener listener);
 
     interface OnTaskAddListener {
@@ -39,7 +41,22 @@ public interface MainInteractor {
         void onGetProfileFinished(String email, String displayName);
     }
 
+    interface OnTaskDeleteFinishListener {
+        void onTaskDeleted(String taskTitle);
+
+        void onTaskDeletedError(String taskTitle);
+    }
+
+    interface OnRemoveDoneTasksListener {
+        void onDeleteDoneTasksSuccess();
+
+        void onDeleteDoneTasksError();
+    }
     void logout(OnLogoutFinishListener listener);
+
+    void fetchUndoneTasks(OnTaskAddListener listener);
+
+    void clearDoneTasks(OnRemoveDoneTasksListener listener);
 }
 
 

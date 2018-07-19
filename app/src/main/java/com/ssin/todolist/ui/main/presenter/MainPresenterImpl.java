@@ -13,7 +13,8 @@ import java.util.List;
  */
 
 public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAddListener, MainInteractor.OnLogoutFinishListener,
-        MainInteractor.TagsListener, MainInteractor.OnGetUserProfileFinishListener {
+        MainInteractor.TagsListener, MainInteractor.OnGetUserProfileFinishListener, MainInteractor.OnTaskDeleteFinishListener,
+        MainInteractor.OnRemoveDoneTasksListener {
     private MainView mainView;
     private MainInteractor mainInteractor;
 
@@ -97,5 +98,40 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
     public void onGetProfileFinished(String email, String displayName) {
         mainView.setUserProfile(email, displayName);
         mainView.setAlarms();
+    }
+
+    @Override
+    public void deleteTask(Task task) {
+        mainInteractor.deleteTask(task, this);
+    }
+
+    @Override
+    public void onTaskDeleted(String taskTitle) {
+        mainView.showToastOnSuccess(taskTitle);
+    }
+
+    @Override
+    public void onTaskDeletedError(String taskTitle) {
+        mainView.showToastOnError(taskTitle);
+    }
+
+    @Override
+    public void fetchOnlyUndoneTasks() {
+        mainInteractor.fetchUndoneTasks(this);
+    }
+
+    @Override
+    public void onDeleteDoneTasksSuccess() {
+        mainView.showToastOnClearDoneTasksSuccess();
+    }
+
+    @Override
+    public void onDeleteDoneTasksError() {
+        mainView.showToastOnClearDoneTasksSuccess();
+    }
+
+    @Override
+    public void clearDoneTasks() {
+        mainInteractor.clearDoneTasks(this);
     }
 }

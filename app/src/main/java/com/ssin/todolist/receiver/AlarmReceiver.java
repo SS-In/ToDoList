@@ -36,7 +36,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
             builder.setContentIntent(pi);
-            builder.setAutoCancel(true);
+            builder.setAutoCancel(false);
             builder.setPriority(NotificationCompat.PRIORITY_MAX);
             builder.setDefaults(NotificationCompat.DEFAULT_ALL);
 

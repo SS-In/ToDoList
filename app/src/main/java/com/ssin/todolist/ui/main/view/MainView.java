@@ -22,4 +22,12 @@ public interface MainView {
     void setAlarms();
 
     void cancelAllAlarms();
+
+    void showToastOnSuccess(String taskTitle);
+
+    void showToastOnError(String taskTitle);
+
+    void showToastOnClearDoneTasksSuccess();
+
+
 }

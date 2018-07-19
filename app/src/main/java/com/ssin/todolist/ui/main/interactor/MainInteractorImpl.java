@@ -1,7 +1,10 @@
 package com.ssin.todolist.ui.main.interactor;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -127,8 +130,8 @@ public class MainInteractorImpl implements MainInteractor {
         this.onTaskAddListener = onTaskAddListener;
         reference.removeEventListener(childEventListener);
         reference.removeEventListener(valueEventListener);
-        reference.addChildEventListener(childEventListener);
-        reference.addValueEventListener(valueEventListener);
+        reference.orderByChild("date").addChildEventListener(childEventListener);
+        reference.orderByChild("date").addValueEventListener(valueEventListener);
     }
 
     @Override
@@ -213,8 +216,63 @@ public class MainInteractorImpl implements MainInteractor {
         if (user != null) {
             String email = user.getEmail();
             String displayname = user.getDisplayName();
-
             listener.onGetProfileFinished(email, displayname);
         }
+    }
+
+    @Override
+    public void deleteTask(final Task task, final OnTaskDeleteFinishListener listener) {
+        reference.child(task.getParent()).
+                removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        listener.onTaskDeleted(task.getTitle());
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                listener.onTaskDeletedError(task.getTitle());
+            }
+        });
+    }
+
+    @Override
+    public void fetchUndoneTasks(final OnTaskAddListener listener) {
+        reference.orderByChild("done").equalTo(false).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Taskable> taskList = new ArrayList<>();
+
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Task task = ds.getValue(Task.class);
+                    task.setParent(ds.getKey());
+                    taskList.add(task);
+                }
+
+                listener.onAllTaskFetched(taskList);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public void clearDoneTasks(final OnRemoveDoneTasksListener listener) {
+        reference.orderByChild("done").equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                    reference.child(ds.getKey()).removeValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

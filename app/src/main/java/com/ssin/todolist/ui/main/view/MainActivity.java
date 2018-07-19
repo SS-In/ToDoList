@@ -1,6 +1,5 @@
 package com.ssin.todolist.ui.main.view;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.TimePickerDialog;
@@ -25,6 +24,7 @@ import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.ssin.todolist.R;
 import com.ssin.todolist.model.Tag;
@@ -33,6 +33,7 @@ import com.ssin.todolist.model.TaskHeader;
 import com.ssin.todolist.model.Taskable;
 import com.ssin.todolist.module.FirebaseModule;
 import com.ssin.todolist.receiver.OverdueReceiver;
+import com.ssin.todolist.service.NotificationRingtoneService;
 import com.ssin.todolist.ui.ediddialog.EditTextDialog;
 import com.ssin.todolist.ui.main.adapter.TaskAdapter;
 import com.ssin.todolist.ui.main.module.DaggerMainComponent;
@@ -79,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String myTasksStr;
     @BindString(R.string.snooze)
     String snoozeStr;
+    @BindString(R.string.message_delete_task_success)
+    String taskDeletedStr;
+    @BindString(R.string.message_delete_task_error)
+    String taskDeletedErrorStr;
 
     @Inject
     MainPresenter presenter;
@@ -143,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         menuTags = navigationView.getMenu().addSubMenu(0, 0, 998, tagsStr);
 
-        presenter.onAllTaskFetch();
+        presenter.fetchOnlyUndoneTasks();
         presenter.onAllTagsFetch();
 
         setTaskList(new ArrayList<Taskable>());
@@ -189,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("INFO", "onActivityResult: requestCode: " + requestCode);
         if(requestCode == 1){
-            if(resultCode == Activity.RESULT_OK){
+            if (resultCode == NewTaskActiivity.RESULT_CREATE_EDIT) {
                 String date = data.getStringExtra(NewTaskActiivity.EXTRA_DATE);
                 String time = data.getStringExtra(NewTaskActiivity.EXTRA_TIME);
                 String title = data.getStringExtra(NewTaskActiivity.EXTRA_TITLE);
@@ -248,6 +253,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 adapter.notifyDataSetChanged();
             }
         }
+
+        if (resultCode == NewTaskActiivity.RESULT_DELETE) {
+            final int pos = data.getIntExtra(NewTaskActiivity.EXTRA_ITEM_POS, -1);
+            Log.d("INFO", "Result pos: " + pos);
+            if (pos != -1) {
+                Task task;
+                task = (Task) adapter.getItem(pos);
+                presenter.deleteTask(task);
+                adapter.notifyDataSetChanged();
+            }
+        }
     }
 
     @Override
@@ -268,7 +284,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        return super.onOptionsItemSelected(item);
+
+        if (id == R.id.action_show_done) {
+            item.setChecked(!item.isChecked());
+            if (item.isChecked())
+                presenter.onAllTaskFetch();
+            else
+                presenter.fetchOnlyUndoneTasks();
+        } else if (id == R.id.action_clear_done) {
+            presenter.clearDoneTasks();
+        }
+        return true;
     }
 
     @Override
@@ -408,6 +434,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent.getAction().equals("action_done")) {
+            Intent stopIntent = new Intent(this, NotificationRingtoneService.class);
+            stopService(stopIntent);
             String childid = intent.getStringExtra(NewTaskActiivity.EXTRA_CHILD_ID);
             int notid = intent.getIntExtra("notification_id", -1);
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -421,6 +449,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         if (intent.getAction().equals("action_snooze")) {
+            Intent stopIntent = new Intent(this, NotificationRingtoneService.class);
+            stopService(stopIntent);
             String childid = intent.getStringExtra(NewTaskActiivity.EXTRA_CHILD_ID);
             lastChildIdFromNotification = childid;
             int notid = intent.getIntExtra("notification_id", -1);
@@ -502,5 +532,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlarmUtil.cancelAlarm(t, getApplicationContext());
             }
         }
+    }
+
+    @Override
+    public void showToastOnSuccess(String taskTitle) {
+        Toast.makeText(this, String.format(taskDeletedStr, taskTitle), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showToastOnError(String taskTitle) {
+        Toast.makeText(this, String.format(taskDeletedErrorStr, taskTitle), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showToastOnClearDoneTasksSuccess() {
+        adapter.notifyDataSetChanged();
+        Toast.makeText(this, String.format(taskDeletedStr), Toast.LENGTH_SHORT).show();
     }
 }

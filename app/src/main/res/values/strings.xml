@@ -52,4 +52,13 @@
     <string name="yesterday">Yesterday</string>
     <string name="finished">Finished</string>
 
+    <string name="clear_finished">Clear done</string>
+    <string name="hide_finished">Hide done</string>
+    <string name="remove">Remove</string>
+    <string name="delete_task">Are you sure to delete task?</string>
+    <string name="message_delete_task_success" formatted="false">Task %s was deleted succefully</string>
+    <string name="message_delete_task_error">An error occurred during deleting task %s </string>
+    <string name="show_done">Show done</string>
+    <string name="clear_done">Clear done</string>
+
 </resources>

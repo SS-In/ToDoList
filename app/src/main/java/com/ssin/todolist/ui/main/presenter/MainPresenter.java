@@ -15,6 +15,12 @@ public interface MainPresenter {
     void onGetTasksByTag(String tag);
     void onGetTasksByDate(String date);
 
+    void deleteTask(Task task);
+
+    void fetchOnlyUndoneTasks();
+
+    void clearDoneTasks();
+
     void getUserInfo();
 
     void logout();
