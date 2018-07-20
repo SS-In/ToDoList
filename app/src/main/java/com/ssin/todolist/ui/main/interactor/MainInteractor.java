@@ -57,6 +57,8 @@ public interface MainInteractor {
     void fetchUndoneTasks(OnTaskAddListener listener);
 
     void clearDoneTasks(OnRemoveDoneTasksListener listener);
+
+    void filterTasksByName(String taskName, OnTaskAddListener listener);
 }
 
 

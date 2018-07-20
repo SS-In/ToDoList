@@ -2,6 +2,7 @@ package com.ssin.todolist.ui.main.view;
 
 import android.app.DatePickerDialog;
 import android.app.NotificationManager;
+import android.app.SearchManager;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @BindView(R.id.drawer_layout)
     DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
+    @BindView(R.id.text_view_no_tasks)
+    TextView tvNoTasks;
 
     //nav header
     TextView tvUserDisplayName;
@@ -95,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private OverdueReceiver overdueReceiver;
     private boolean filtered;
     private String lastChildIdFromNotification;
+
+    private boolean showDone;
 
     public static final String ACTION_LOGIN = "action_login";
 
@@ -278,6 +284,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home, menu);
+
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                presenter.filterTasksByName(query);
+                searchView.setIconified(false);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         return true;
     }
 
@@ -287,10 +310,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.action_show_done) {
             item.setChecked(!item.isChecked());
-            if (item.isChecked())
-                presenter.onAllTaskFetch();
-            else
-                presenter.fetchOnlyUndoneTasks();
+            showDone = !item.isChecked();
+            adapter.notifyDataSetChanged();
+            presenter.onAllTaskFetch(showDone);
         } else if (id == R.id.action_clear_done) {
             presenter.clearDoneTasks();
         }
@@ -302,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.action_all_tasks) {
-            presenter.onAllTaskFetch();
+            presenter.onAllTaskFetch(showDone);
             filtered = false;
             getSupportActionBar().setTitle(myTasksStr);
 
@@ -319,6 +341,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adapter = new TaskAdapter(this, tasks, this);
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
+
+        if (tasks.size() == 0) {
+            list.setVisibility(View.GONE);
+            tvNoTasks.setVisibility(View.VISIBLE);
+        } else {
+            list.setVisibility(View.VISIBLE);
+            tvNoTasks.setVisibility(View.GONE);
+        }
     }
 
     @Override

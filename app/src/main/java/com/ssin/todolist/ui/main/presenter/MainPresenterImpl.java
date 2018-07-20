@@ -39,8 +39,11 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
     }
 
     @Override
-    public void onAllTaskFetch() {
-        mainInteractor.fetchAllTasks(this);
+    public void onAllTaskFetch(boolean showDone) {
+        if (!showDone)
+            mainInteractor.fetchAllTasks(this);
+        else
+            mainInteractor.fetchUndoneTasks(this);
     }
 
     @Override
@@ -133,5 +136,10 @@ public class MainPresenterImpl implements MainPresenter, MainInteractor.OnTaskAd
     @Override
     public void clearDoneTasks() {
         mainInteractor.clearDoneTasks(this);
+    }
+
+    @Override
+    public void filterTasksByName(String taskName) {
+        mainInteractor.filterTasksByName(taskName, this);
     }
 }

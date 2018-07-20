@@ -275,4 +275,29 @@ public class MainInteractorImpl implements MainInteractor {
             }
         });
     }
+
+    @Override
+    public void filterTasksByName(String taskName, final OnTaskAddListener listener) {
+        reference.orderByChild("title").startAt(taskName)
+                .endAt(taskName + "\uf8ff").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Taskable> taskList = new ArrayList<>();
+
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Task task = ds.getValue(Task.class);
+                    task.setParent(ds.getKey());
+                    taskList.add(task);
+                }
+
+                listener.onAllTaskFetched(taskList);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 }

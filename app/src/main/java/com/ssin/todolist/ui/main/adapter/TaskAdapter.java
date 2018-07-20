@@ -106,14 +106,17 @@ public class TaskAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
+
         final TaskViewHolder taskViewHolder;
         DateViewHolder dateViewHolder;
 
         if(getItemViewType(i) == TYPE_TASK) {
             final Task t = (Task)getTask(i);
 
+
             if (view == null ||  !(view.getTag() instanceof TaskViewHolder)) {
                 view = inflater.inflate(R.layout.task_item, viewGroup, false);
+                view.setVisibility(View.VISIBLE);
                 taskViewHolder = new TaskViewHolder(view);
                 Map<String, Tag> tags = t.getTags();
                 addTextViews(tags,taskViewHolder);

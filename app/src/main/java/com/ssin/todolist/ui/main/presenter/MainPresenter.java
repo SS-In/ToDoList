@@ -9,19 +9,17 @@ import com.ssin.todolist.model.Task;
 public interface MainPresenter {
     void onNewTaskAdd(Task task);
     void onTaskUpdate(Task task);
-    void onAllTaskFetch();
+
+    void onAllTaskFetch(boolean showDone);
     void onAllTagsFetch();
     void onNewTagAdd(String name);
     void onGetTasksByTag(String tag);
     void onGetTasksByDate(String date);
-
     void deleteTask(Task task);
-
     void fetchOnlyUndoneTasks();
-
     void clearDoneTasks();
-
     void getUserInfo();
-
     void logout();
+
+    void filterTasksByName(String taskName);
 }

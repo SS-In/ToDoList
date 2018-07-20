@@ -60,5 +60,6 @@
     <string name="message_delete_task_error">An error occurred during deleting task %s </string>
     <string name="show_done">Show done</string>
     <string name="clear_done">Clear done</string>
+    <string name="no_tasks">No tasks</string>
 
 </resources>
